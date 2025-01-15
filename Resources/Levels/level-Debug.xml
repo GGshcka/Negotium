@@ -1,0 +1,21 @@
+<level
+        name='Debug'
+        columns='10'
+        rows='10'
+>
+    <obstacles>
+        <pit x='0' y='1'/>
+        <pit x='1' y='1'/>
+        <pit x='2' y='1'/>
+        <pit x='3' y='1'/>
+        <pit x='3' y='2'/>
+        <pit x='4' y='2'/>
+        <pit x='5' y='2'/>
+        <pit x='6' y='2'/>
+        <pit x='6' y='3'/>
+        <pit x='6' y='4'/>
+        <pit x='6' y='5'/>
+        <pit x='8' y='5'/>
+        <pit x='9' y='5'/>
+    </obstacles>
+</level>

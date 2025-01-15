@@ -29,9 +29,9 @@ PyObject* PyAPI::move(PyObject* self, PyObject* args) {
         return nullptr;
     }
 
-    int result = game->Move(direction);
+    game->actions.append([direction]() { game->Move(direction); });
 
-    return PyLong_FromLong(result);
+    return PyLong_FromLong(1);
 }
 
 PyMethodDef PyAPI::IntegrationMethods[] = {

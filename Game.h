@@ -1,13 +1,8 @@
 #ifndef NEGOTIUM_GAME_H
 #define NEGOTIUM_GAME_H
 
-#include <QGraphicsView>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsScene>
-#include <QKeyEvent>
-#include <QTextEdit>
-#include <QMutex>
-#include <QSequentialAnimationGroup>
+#include <Qt>
+#include <QtWidgets>
 #include "AnimatedGraphicsItem.h"
 
 class Game : public QGraphicsView {
@@ -15,19 +10,27 @@ class Game : public QGraphicsView {
 
 public:
     Game(QTextEdit *edit, QTextEdit *debugText);
-    int Move(int direction);
+    QVector<std::function<void()>> actions;
+    void Move(int direction);
     void Run();
+    QGraphicsScene *scene;
 
 private:
-    const int gridSize = 64;
+    int gridSize = 547;
+    int currentActionIndex = 0;
+    QPointF endPos;
 
-    void createGrid();
+    void createGrid() const;
+    bool loadLevel();
 
-    QGraphicsScene *scene;
+    void execActions();
+
     AnimatedGraphicsItem *character;
     QTextEdit *textEdit, *debugTextView;
 
     QSequentialAnimationGroup *animationGroup;
+    int gridRowCount = 10, gridColumnCount = 10;
+    QVector<QPoint> pitCords;
 };
 
 #endif //NEGOTIUM_GAME_H

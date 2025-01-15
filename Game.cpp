@@ -1,12 +1,11 @@
 #include "Game.h"
+#include <Qt>
+#include <QtWidgets>
+#include <QPoint>
+#include <QList>
 #include "PyAPI.h"
 #include <python3.13/Python.h>
-#include <QTimer>
-#include <QMessageBox>
-#include <QThread>
-#include <QPropertyAnimation>
-#include <QTapAndHoldGesture>
-#include <QRegularExpression>
+#include <QtGlobal>
 
 
 Game::Game(QTextEdit *edit, QTextEdit *debugText) {
@@ -15,77 +14,96 @@ Game::Game(QTextEdit *edit, QTextEdit *debugText) {
     scene = new QGraphicsScene(this);
     setScene(scene);
 
-    scene->setSceneRect(10, 10, 640, 640);
+    if(loadLevel()) qInfo() << "Successful loaded...";
+    else qDebug() << "Can't load file...";
 
-    createGrid();
-
-    character = new AnimatedGraphicsItem(QPixmap("../robot.png").scaled(gridSize,gridSize));
-    character->setPos(0, 0);
+    character = new AnimatedGraphicsItem(QPixmap("../Resources/Sprites/Pinny_D-DOWN.png").scaled(gridSize - 1 ,gridSize - 1, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    character->setPos(1, 1);
+    endPos = character->pos();
     scene->addItem(character);
-
-    animationGroup = new QSequentialAnimationGroup(this);
 
     setFocusPolicy(Qt::StrongFocus);
 }
 
-int Game::Move(int direction) {
-    QPointF startPos = character->pos(); // Текущая позиция
-    QPointF endPos = startPos;           // Конечная позиция
+void Game::Move(int direction) {
+    QPointF startPos = character->pos();
 
-    // Определяем новое положение на основе направления
+    bool detected = false;
+
     switch (direction) {
         case 0: // UP
             if (startPos.y() - gridSize >= 0) {
+                character->setPixmap(QPixmap("../Resources/Sprites/Pinny_D-UP.png").scaled(gridSize - 1, gridSize - 1,Qt::KeepAspectRatio,Qt::SmoothTransformation));
                 endPos.ry() -= gridSize;
             }
             break;
         case 1: // DOWN
             if (startPos.y() + gridSize < scene->height()) {
+                character->setPixmap(QPixmap("../Resources/Sprites/Pinny_D-DOWN.png").scaled(gridSize - 1, gridSize - 1,Qt::KeepAspectRatio,Qt::SmoothTransformation));
                 endPos.ry() += gridSize;
             }
             break;
         case 2: // LEFT
             if (startPos.x() - gridSize >= 0) {
+                character->setPixmap(QPixmap("../Resources/Sprites/Pinny_D-LEFT.png").scaled(gridSize - 1, gridSize - 1,Qt::KeepAspectRatio,Qt::SmoothTransformation));
                 endPos.rx() -= gridSize;
             }
             break;
         case 3: // RIGHT
             if (startPos.x() + gridSize < scene->width()) {
+                character->setPixmap(QPixmap("../Resources/Sprites/Pinny_D-RIGHT.png").scaled(gridSize - 1, gridSize - 1,Qt::KeepAspectRatio,Qt::SmoothTransformation));
                 endPos.rx() += gridSize;
             }
             break;
-        default:
-            return -1; // Некорректное направление
     }
 
-    // Создаем анимацию
-    QPropertyAnimation *animation = new QPropertyAnimation(character, "pos", this);
-    animation->setDuration(750); // Время анимации
-    animation->setStartValue(startPos); // Текущее значение pos
-    animation->setEndValue(endPos);             // Конечная позиция
-    animation->setEasingCurve(QEasingCurve::InOutElastic);
-
-    if (endPos != startPos) {
-        // Добавляем анимацию в группу
-        animationGroup->addAnimation(animation);
-
-        // Запускаем группу, если она не запущена
-        if (animationGroup->state() != QAbstractAnimation::Running) {
-            animationGroup->start();
+    for (const auto &pit: pitCords) {
+        if (endPos == pit * gridSize + QPoint(1, 1)) {
+            detected = true;
+            endPos = character->pos();
+            break;
         }
-
-        character->setPos(endPos);
     }
 
-    return direction;
+    if (detected) {
+        debugTextView->append("Falled...");
+        return;
+    }
+}
+
+qreal customEasingFunction(qreal progress) {
+    return sin(progress * M_PI / 2); // Плавное движение вперед //!Ебанутое движение tan(progress*M_PI*progress*M_PI)
+}
+
+void Game::execActions() {
+    if (currentActionIndex < actions.size()) {
+        actions[currentActionIndex]();
+
+        QPropertyAnimation *animation = new QPropertyAnimation(character, "pos", this);
+        animation->setDuration(750); // Время анимации
+        animation->setStartValue(character->pos()); // Текущее значение pos
+        animation->setEndValue(endPos);      // Конечная позиция
+        QEasingCurve easingCurve;
+        easingCurve.setCustomType(customEasingFunction);
+        animation->setEasingCurve(easingCurve); //QEasingCurve::InOutElastic
+
+        connect(animation, &QPropertyAnimation::finished, this, [this]() {
+            character->setPos(endPos);
+            currentActionIndex++;
+            execActions();
+        });
+
+        animation->start();
+    } else qDebug() << "Код выполен.";
 }
 
 void Game::Run() {
-    if (character->pos() != QPointF(0, 0)) {
-        character->setPos(0, 0);
+    if (character->pos() != QPointF(1, 1)) {
+        character->setPos(1, 1);
+        endPos = character->pos();
+        actions.resize(0);
+        currentActionIndex = 0;
     }
-    animationGroup->stop();
-    animationGroup->clear();
     textEdit->clearFocus();
 
     PyAPI::Initialize(this);
@@ -107,6 +125,8 @@ void Game::Run() {
 
     PyObject *result = PyRun_String(textData, Py_file_input, globals, locals);
 
+    execActions();
+
     if (result == nullptr) {
         QTime *time = new QTime();
         PyObject *type, *value, *traceback;
@@ -121,39 +141,46 @@ void Game::Run() {
     PyAPI::Finalize();
 }
 
-void Game::createGrid() {
+void Game::createGrid() const {
     for (int x = 0; x <= scene->width(); x += gridSize) {
-        scene->addLine(x, 0, x, scene->height(), QPen(Qt::lightGray));
+        scene->addLine(x, 0, x, scene->height(), QPen(qRgb(174, 149, 229)));
     }
 
     for (int y = 0; y <= scene->height(); y += gridSize) {
-        scene->addLine(0, y, scene->width(), y, QPen(Qt::lightGray));
+        scene->addLine(0, y, scene->width(), y, QPen(qRgb(174, 149, 229)));
     }
 }
 
-/*QFile file("script.py");
-   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-       QMessageBox::warning(this, tr("Error"), tr("Cannot save file: %1").arg(file.errorString()));
-       return; // Если не удалось открыть файл для записи, выходим
-   }
-   QTextStream out(&file); // Создаем QTextStream для записи в файл
-   out << textEdit->toPlainText(); // Записываем текст из QTextEdit
-   file.close(); // Закрываем файл*/
+bool Game::loadLevel() {
+    QFile* file = new QFile("../Resources/Levels/level-Debug.xml");
+    if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
 
-/*const char* filename = "script.py";
-FILE *file = fopen(filename, "w+");
+    QXmlStreamReader xml(file);
+    while (!xml.atEnd()) {
+        xml.readNext();
+        if (xml.isStartElement()) {
+            auto tagName = xml.qualifiedName();
 
-QString text = textEdit->toPlainText();
-const char *textData = text.toUtf8().constData();
+            if (tagName == "level") {
+                QXmlStreamAttributes attributes = xml.attributes();
+                gridColumnCount = attributes.value("columns").toInt();
+                gridRowCount = attributes.value("rows").toInt();
+            } else if (tagName == "pit") {
+                QXmlStreamAttributes attributes = xml.attributes();
+                pitCords.append(QPoint(attributes.value("x").toInt(), attributes.value("y").toInt()));
+            }
+        }
+    }
 
-size_t written = fwrite(textData, sizeof(char), text.length(), file);
+    scene->setSceneRect(0, 0, gridSize * gridColumnCount, gridSize * gridRowCount);
 
-PyObject *result = PyRun_File(file, filename, Py_file_input, PyEval_GetGlobals(), PyEval_GetGlobals());
+    createGrid();
 
-fclose(file);*/
+    for (int i = 0; i < pitCords.length(); i++) {
+        scene->addRect(gridSize * pitCords[i].x(), gridSize * pitCords[i].y(), gridSize, gridSize, QPen(qRgb(0, 0, 0)), QBrush(qRgb(0, 0, 0)));
+    }
 
-/*if (luaL_dofile(luaApi::lstate, "script.lua") != LUA_OK) {
-    QTime *time = new QTime();
-    debugTextView->append(time->currentTime().toString() + " | Error: " + lua_tostring(luaApi::lstate, -1));
-    lua_pop(luaApi::lstate, 1);
-}*/
+    return true;
+}
