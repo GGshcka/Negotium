@@ -24,7 +24,7 @@ public:
         //! CODE EDITOR MDI START
         QMdiSubWindow *codeEditorMdiWindow = new QMdiSubWindow();
         codeEditorMdiWindow->setWindowTitle(QString("Редактор кода"));
-        codeEditorMdiWindow->setGeometry(1100, 40, 300, 800);
+        codeEditorMdiWindow->setGeometry(1550, 40, 300, 800);
         codeEditorMdiWindow->setWindowIcon(pixmap);
 
         auto *codeEditorCentralWidget = new QWidget(codeEditorMdiWindow);
@@ -43,7 +43,7 @@ public:
         edit = new QTextEdit();
         edit->setTabStopDistance(12);
 
-        QFile file("script.py");
+        QFile file("main.ssf");
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qDebug("Can't open file.");
         }
@@ -61,7 +61,7 @@ public:
         //! RUN OUTPUT MDI START
         QMdiSubWindow *runOutputMdiWindow = new QMdiSubWindow();
         runOutputMdiWindow->setWindowTitle(QString("Вывод"));
-        runOutputMdiWindow->setGeometry(20, 800, 850, 200);
+        runOutputMdiWindow->setGeometry(20, 850, 850, 200);
         runOutputMdiWindow->setWindowIcon(pixmap);
 
         auto *runOutputCentralWidget = new QWidget(runOutputMdiWindow);
@@ -79,7 +79,7 @@ public:
         //! VIEW MDI START
         QMdiSubWindow *viewMdiWindow = new QMdiSubWindow();
         viewMdiWindow->setWindowTitle(QString("Поле"));
-        viewMdiWindow->setGeometry(20, 40, 1050, 700);
+        viewMdiWindow->setGeometry(20, 40, 1450, 800);
         viewMdiWindow->setWindowIcon(pixmap);
 
         auto *viewCentralWidget = new QWidget(viewMdiWindow);

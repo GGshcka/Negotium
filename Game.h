@@ -10,12 +10,11 @@ class Game : public QGraphicsView {
 
 public:
     Game(QTextEdit *edit, QTextEdit *debugText);
-    QVector<std::function<void()>> actions;
     void Move(int direction);
     bool CanMove(int direction);
     void Run();
     void PlayerHit(unsigned int dmg);
-    int PlayerHPGet() const;
+    unsigned int PlayerHPGet() const;
     QGraphicsScene *scene;
     QTextEdit *textEdit, *debugTextView;
 
@@ -31,8 +30,7 @@ private:
 
     void createGrid() const;
     bool loadLevel();
-
-    void execActions();
+    void moveBox(AnimatedGraphicsItem *targetBox, int direction);
 
     QPixmap *PDown = new QPixmap("../Resources/Sprites/Pinny_D-DOWN.png");
     QPixmap *PLeft = new QPixmap("../Resources/Sprites/Pinny_D-LEFT.png");
@@ -41,9 +39,9 @@ private:
 
     AnimatedGraphicsItem *character;
 
-    QSequentialAnimationGroup *animationGroup;
     int gridRowCount = 10, gridColumnCount = 10;
-    QVector<QPoint> pitCords;
+    QVector<QPoint> pitCords, boxesPos;
+    QVector<AnimatedGraphicsItem*> boxes;
 };
 
 #endif //NEGOTIUM_GAME_H
