@@ -6,21 +6,37 @@ QTextEdit, QGraphicsView {
   color: lightgray;
 }
 
+QGraphicsView {
+  background-color: #342a4a;
+}
+
 QToolBar {
   background-color: rgba(0, 0, 0, 0.3);
   /* top | right | bottom | left */
-  border: solid rgb(174, 149, 229);
-  border-width: 0 0 1px 0;
+  border: 1px solid rgb(174, 149, 229);
+  border-radius: 5px;
+}
+
+QToolButton:!checked {
+  border: 2px solid transparent;
 }
 
 QPushButton {
   margin: 5px;
   font-size: large;
-  padding-bottom: 3px;
 }
 
-QMainWindow {
+#Hearts {
+  background: aqua;
+}
+
+QMdiArea {
+  background: transparent;
+}
+
+QMdiSubWindow {
   background-color: rgb(87, 70, 123);
+  color: lightgray;
 }
 
 QScrollBar {

@@ -6,8 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Xml Core)
-find_package(raylib REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Xml Core Concurrent)
 find_package(Python3 COMPONENTS Development REQUIRED)
 
 include_directories(${Python3_INCLUDE_DIRS} #[[/usr/include/python3.13]])
@@ -25,7 +24,7 @@ target_link_libraries(${PROJECT_NAME}
         Qt6::Widgets
         Qt6::Xml
         Qt6::Core
-        raylib
+        Qt6::Concurrent
         ${Python3_LIBRARIES}
 )
 

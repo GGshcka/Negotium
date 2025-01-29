@@ -29,13 +29,28 @@ PyObject* PyAPI::move(PyObject* self, PyObject* args) {
         return nullptr;
     }
 
-    game->actions.append([direction]() { game->Move(direction); });
+    game->Move(direction);
+
+    QEventLoop loop;
+    AnimatedGraphicsItem::connect(game, &Game::moveCompleted, &loop, &QEventLoop::quit);
+    loop.exec();
 
     return PyLong_FromLong(1);
 }
 
+PyObject* PyAPI::canMove(PyObject* self, PyObject* args) {
+    int direction;
+
+    if (!PyArg_ParseTuple(args, "i", &direction)) {
+        return nullptr;
+    }
+
+    return PyBool_FromLong(game->CanMove(direction));
+}
+
 PyMethodDef PyAPI::IntegrationMethods[] = {
         {"move", move, METH_VARARGS, "Move in a given direction"},
+        {"canMove", canMove, METH_VARARGS, "Can move in direction?"},
         {nullptr, nullptr, 0, nullptr}
 };
 

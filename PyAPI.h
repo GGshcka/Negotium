@@ -16,6 +16,7 @@ public:
 private:
     static Game *game;
     static PyObject *move(PyObject* self, PyObject* args);
+    static PyObject *canMove(PyObject* self, PyObject* args);
     static PyObject *pyInit_game(void);
     static PyMethodDef IntegrationMethods[];
     static struct PyModuleDef IntegrationModule;
