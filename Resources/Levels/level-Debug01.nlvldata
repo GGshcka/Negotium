@@ -1,0 +1,22 @@
+<level
+        group='Debug'
+        columns='5'
+        rows='5'
+>
+    <exit x='4' y='0' closed='1'/>
+    <objects>
+        <pits>
+            <pit x='0' y='2'/>
+            <pit x='1' y='2'/>
+            <pit x='3' y='2'/>
+            <pit x='4' y='2'/>
+        </pits>
+        <boxes>
+            <box x='0' y='1'/>
+            <box x='2' y='2'/>
+        </boxes>
+        <buttons>
+            <button x='2' y='4'/>
+        </buttons>
+    </objects>
+</level>

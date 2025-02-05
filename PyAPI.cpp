@@ -32,7 +32,7 @@ PyObject* PyAPI::move(PyObject* self, PyObject* args) {
     game->Move(direction);
 
     QEventLoop loop;
-    AnimatedGraphicsItem::connect(game, &Game::moveCompleted, &loop, &QEventLoop::quit);
+    GraphicalGameObject::connect(game, &Game::moveCompleted, &loop, &QEventLoop::quit);
     loop.exec();
 
     return PyLong_FromLong(1);

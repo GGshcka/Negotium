@@ -6,15 +6,30 @@ QTextEdit, QGraphicsView {
   color: lightgray;
 }
 
-QGraphicsView {
+/*QGraphicsView {
   background-color: #342a4a;
-}
+}*/
 
 QToolBar {
   background-color: rgba(0, 0, 0, 0.3);
   /* top | right | bottom | left */
   border: 1px solid rgb(174, 149, 229);
   border-radius: 5px;
+}
+
+QComboBox {
+  background-color: transparent;
+  border-width: 0 0 0 1px;
+  border-color: rgb(174, 149, 229);
+  border-style: solid;
+  color: lightgray;
+  width: 45px;
+  padding-left: 5px;
+}
+
+QComboBox::item {
+  background-color: rgb(87, 70, 123);
+  text-align: center;
 }
 
 QToolButton:!checked {
@@ -26,16 +41,23 @@ QPushButton {
   font-size: large;
 }
 
-#Hearts {
-  background: aqua;
-}
-
-QMdiArea {
-  background: transparent;
-}
-
-QMdiSubWindow {
+QMainWindow, QMdiSubWindow {
   background-color: rgb(87, 70, 123);
+  color: lightgray;
+}
+
+QTreeView, QMenuBar{
+  background-color: rgba(0, 0, 0, 0.3);
+  color: lightgray;
+}
+
+QMenu {
+  background-color: rgb(87, 70, 123);
+  border: 1px solid rgb(174, 149, 229);
+}
+
+QMenu::item {
+  background-color: red;
   color: lightgray;
 }
 

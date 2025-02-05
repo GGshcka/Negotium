@@ -1,8 +1,9 @@
 <level
-        name='Debug'
+        group='Debug'
         columns='10'
         rows='10'
 >
+    <exit x='0' y='2' closed='0'/>
     <objects>
         <pits>
             <pit x='0' y='1'/>
@@ -23,5 +24,7 @@
             <box x='6' y='6'/>
             <box x='7' y='5'/>
         </boxes>
+        <buttons>
+        </buttons>
     </objects>
 </level>

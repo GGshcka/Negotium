@@ -1,0 +1,28 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource>
+        <file>Resources/style.scss</file>
+
+        <file>Resources/Icons/bgPaws.png</file>
+        <file>Resources/Icons/heart.png</file>
+        <file>Resources/Icons/iconExec.png</file>
+        <file>Resources/Icons/iconZoomIn.png</file>
+        <file>Resources/Icons/iconZoomOut.png</file>
+
+        <file>Resources/Sprites/mood-annoyed.gif</file>
+        <file>Resources/Sprites/mood-love.gif</file>
+        <file>Resources/Sprites/mood-sad.gif</file>
+        <file>Resources/Sprites/Box.png</file>
+        <file>Resources/Sprites/BG.png</file>
+        <file>Resources/Sprites/Button.png</file>
+        <file>Resources/Sprites/Door_Open.png</file>
+        <file>Resources/Sprites/Door_Closed.png</file>
+        <file>Resources/Sprites/Pinny_D-DOWN.png</file>
+        <file>Resources/Sprites/Pinny_D-LEFT.png</file>
+        <file>Resources/Sprites/Pinny_D-RIGHT.png</file>
+        <file>Resources/Sprites/Pinny_D-UP.png</file>
+    </qresource>
+    <qresource prefix="/levels/Debug">
+        <file alias="Level 0.0">Resources/Levels/level-Debug00.nlvldata</file>
+        <file alias="Level 0.1">Resources/Levels/level-Debug01.nlvldata</file>
+    </qresource>
+</RCC>
