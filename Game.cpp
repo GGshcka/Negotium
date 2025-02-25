@@ -4,6 +4,7 @@
 #include <QPoint>
 #include <QList>
 #include "PyAPI.h"
+#include "SavesFileWorker.h"
 #include <python3.13/Python.h>
 #include <QtGlobal>
 
@@ -225,18 +226,11 @@ void Game::Run() { //! ВАЖНО ! двойной запуск ломает и�
     PyObject *locals = PyDict_New();
 
     QString text = textEdit->toPlainText();
-    const char *textData = text.toUtf8().constData();
 
-    const char* filename = "main.ncsf";
-    FILE *file = fopen(filename, "wb+");
-    if (!file) {
-        debugTextView->append("Error: Could not open/create script file and save!");
-        return;
-    }
-    fwrite(textData, sizeof(char), text.length(), file);
-    fclose(file);
+    auto *fw = new SavesFileWorker("code.isf");
+    fw->setSaveFileText(text);
 
-    QString readyPythonCode = QString("from game import *\n") + textData;
+    QString readyPythonCode = QString("from game import *\n") + text;
 
     PyObject *result = PyRun_String(readyPythonCode.toUtf8().constData(), Py_file_input, globals, locals);
 
@@ -320,11 +314,6 @@ bool Game::loadLevel() {
 
     scene->setSceneRect(0, 0, gridSize * gridColumnCount + gridSize*2, gridSize * gridRowCount + gridSize*2);
     //scene->addRect(0,0,scene->width(), scene->height(), QPen(qRgb(69, 56, 96)), QBrush(qRgb(69, 56, 96)));
-
-    connect(exit, &GameExit::signalChangeState, this, [this]() {
-        if(exit->isClosed()) character->showMood(speedMultiplier, "annoyed");
-        else character->showMood(speedMultiplier, "love");
-    });
 
     scene->addItem(exit);
 

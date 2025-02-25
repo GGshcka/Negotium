@@ -13,7 +13,9 @@ qt_standard_project_setup()
 include_directories(${Python3_INCLUDE_DIRS})
 
 file(GLOB files
-        "${CMAKE_CURRENT_SOURCE_DIR}/*.*"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.qrc"
 )
 
 qt_add_resources(RESOURCES resources.qrc)

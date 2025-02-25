@@ -2,6 +2,8 @@
 #include <QtWidgets>
 #include "Game.h"
 #include "PyAPI.h"
+#include "SavesFileWorker.h"
+#include "CodeHighlighter.h"
 #include <python3.13/Python.h>
 
 Game *gameView;
@@ -168,15 +170,11 @@ protected:
         codeEditorToolBar->addWidget(speedMultiplierBox);
 
         edit = new QTextEdit();
+        new CodeHighlighter(edit->document());
         edit->setTabStopDistance(12);
 
-        QFile file("main.ncsf");
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qDebug("Can't open file.");
-        }
-        QTextStream out(&file);
-        edit->setText(out.readAll());
-        file.close();
+        auto *fw = new SavesFileWorker("code.isf");
+        edit->setText(fw->getSaveFileText());
 
         codeEditorLayout = new QGridLayout(codeEditorCentralWidget);
         codeEditorLayout->addWidget(codeEditorToolBar, 0, 0);
@@ -283,6 +281,7 @@ private Q_SLOTS:
 
             QStandardItem *item = model->itemFromIndex(index);
             if (item && !item->text().startsWith("Chapter:")) {
+                QCoreApplication::instance()->setProperty("levelName", item->text());
                 openLevelMDIWindows(QString(":/levels/" + item->parent()->text().slice(9) + "/" + item->text()));
                 runLevelMdiWindow->close();
             }
@@ -298,13 +297,16 @@ private:
     QMdiSubWindow *codeEditorMdiWindow = nullptr;
     QMdiSubWindow *runOutputMdiWindow = nullptr;
     QMdiSubWindow *viewMdiWindow = nullptr;
+    QMdiSubWindow *guideMdiWindow = nullptr;
     QMdiSubWindow *runLevelMdiWindow = nullptr;
     QMdiArea *mdiArea;
     QGridLayout *codeEditorLayout;
+    QGridLayout *guideLayout;
     QGridLayout *runOutputLayout;
     QGridLayout *viewLayout;
     QTextEdit *edit;
     QTextEdit *debugText;
+    QTextEdit *guideText;
     QGraphicsView *view;
     QToolBar *viewToolBar;
     QToolBar *codeEditorToolBar;

@@ -19,4 +19,17 @@
             <button x='2' y='4'/>
         </buttons>
     </objects>
+    <guide>
+        <title>
+            Test title!
+        </title>
+        <maintext>
+            This a test text!
+            Cat #1.
+            Cat #2.
+            Cat #3.
+            Cat #4.
+            Just a basic orange cat.
+        </maintext>
+    </guide>
 </level>
