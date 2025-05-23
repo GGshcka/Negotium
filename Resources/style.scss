@@ -46,7 +46,7 @@ QMainWindow, QMdiSubWindow {
   color: lightgray;
 }
 
-QTreeView, QMenuBar{
+QTreeView, QMenuBar {
   background-color: rgba(0, 0, 0, 0.3);
   color: lightgray;
 }
@@ -54,11 +54,16 @@ QTreeView, QMenuBar{
 QMenu {
   background-color: rgb(87, 70, 123);
   border: 1px solid rgb(174, 149, 229);
+  color: lightgray;
 }
 
-QMenu::item {
-  background-color: red;
+QMenu::item:selected {
+  background-color: rgba(0, 0, 0, 0.3);
   color: lightgray;
+}
+
+QMenu::item:disabled {
+  color: gray;
 }
 
 QScrollBar {

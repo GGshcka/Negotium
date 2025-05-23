@@ -1,0 +1,32 @@
+<level
+        group='default'
+        columns='20'
+        rows='1'
+>
+    <exit x='19' y='0' closed='0'/>
+    <objects>
+        <pits>
+        </pits>
+        <boxes>
+        </boxes>
+        <buttons>
+        </buttons>
+        <souls>
+            <soul x='2' y='0' vertical='1' backward="0"/>
+            <soul x='5' y='0' vertical='1' backward="1"/>
+            <soul x='8' y='0' vertical='1' backward="0"/>
+            <soul x='11' y='0' vertical='1' backward="1"/>
+            <soul x='14' y='0' vertical='1' backward="0"/>
+            <soul x='17' y='0' vertical='1' backward="1"/>
+        </souls>
+    </objects>
+    <lvlguide>
+        <title>
+            This is title!
+        </title>
+        <maintext>
+            Just some main text.
+            And it's multiline!
+        </maintext>
+    </lvlguide>
+</level>

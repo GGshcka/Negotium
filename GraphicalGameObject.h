@@ -76,7 +76,7 @@ public:
         moodLabel->setAttribute(Qt::WA_TranslucentBackground); // Устанавливаем прозрачный фон
         moodLabel->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint); // Убираем рамки окна
 
-        auto *movie = new QMovie(":/Resources/Sprites/mood-" + moodString + ".gif");
+        auto *movie = new QMovie(":/player/moods/" + moodString);
 
         if (moodString == "annoyed") movie->setSpeed(100 / multiplier);
         else if (moodString == "sad" || moodString == "love") movie->setSpeed(31 / multiplier);
@@ -110,7 +110,6 @@ public:
     }
 
 
-
 Q_SIGNALS:
         void opacityChanged();
         void posChanged();
@@ -135,8 +134,8 @@ public:
     bool isClosed() const { return closed; }
     void setClosed(bool var) {
         closed = var;
-        if (closed) GraphicalGameObject::setPixmap(QPixmap(":/Resources/Sprites/Door_Closed.png").scaled(547, 547));
-        else GraphicalGameObject::setPixmap(QPixmap(":/Resources/Sprites/Door_Open.png").scaled(547, 547));
+        if (closed) GraphicalGameObject::setPixmap(QPixmap(":/game/obj/door-closed").scaled(547, 547));
+        else GraphicalGameObject::setPixmap(QPixmap(":/game/obj/door-open").scaled(547, 547));
     }
 
 Q_SIGNALS:
@@ -173,6 +172,36 @@ public:
 
 private:
     bool falled;
+};
+
+class SoulEntity : public GraphicalGameObject {
+Q_OBJECT
+public:
+    explicit SoulEntity(QPixmap pixmap, QGraphicsItem *parent = nullptr, bool vertical = false, bool backward = false)
+            : GraphicalGameObject(pixmap, parent), wanderingPositon(0), vert(vertical), backward(backward), defaultBackward(backward) {}
+
+    bool isVertical() const {
+        return vert;
+    }
+
+    int getWanderingPosition() const { return wanderingPositon; }
+    void increaseWanderingPosition() {
+        if (backward) wanderingPositon -= 1;
+        else wanderingPositon += 1;
+    }
+
+    bool isBackward() const { return backward; }
+    void reversMoveDirection() { backward = !backward; }
+
+    void reset() {
+        wanderingPositon = 0;
+        backward = defaultBackward;
+        setPos(startPos());
+    }
+
+private:
+    int wanderingPositon;
+    bool vert, backward, defaultBackward;
 };
 
 #endif // NEGOTIUM_GRAPHICALGAMEOBJECT_H

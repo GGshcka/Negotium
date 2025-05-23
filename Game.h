@@ -32,12 +32,13 @@ private:
     void createGrid() const;
     bool loadLevel();
     bool moveBox(GameBox *targetBox, int direction);
+    void moveSoul(SoulEntity *soul, int multiplier);
     void fallAnim(GraphicalGameObject *target);
 
-    QPixmap *PDown = new QPixmap(":/Resources/Sprites/Pinny_D-DOWN.png");
-    QPixmap *PLeft = new QPixmap(":/Resources/Sprites/Pinny_D-LEFT.png");
-    QPixmap *PRight = new QPixmap(":/Resources/Sprites/Pinny_D-RIGHT.png");
-    QPixmap *PUp = new QPixmap(":/Resources/Sprites/Pinny_D-UP.png");
+    QPixmap *PDown = new QPixmap(":/player/main/down");
+    QPixmap *PLeft = new QPixmap(":/player/main/left");
+    QPixmap *PRight = new QPixmap(":/player/main/right");
+    QPixmap *PUp = new QPixmap(":/player/main/up");
 
     GraphicalGameObject *character;
     GameExit *exit;
@@ -46,7 +47,10 @@ private:
     QVector<QPoint> pitCords;
     QVector<GameBox*> boxes;
     QVector<GameButton*> buttons;
+    QVector<SoulEntity*> souls;
     QString lvlPath;
+
+    QEasingCurve easingCurve;
 };
 
 #endif //NEGOTIUM_GAME_H

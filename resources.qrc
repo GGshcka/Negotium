@@ -1,28 +1,47 @@
 <!DOCTYPE RCC><RCC version="1.0">
-    <qresource>
-        <file>Resources/style.scss</file>
-
-        <file>Resources/Icons/bgPaws.png</file>
-        <file>Resources/Icons/heart.png</file>
-        <file>Resources/Icons/iconExec.png</file>
-        <file>Resources/Icons/iconZoomIn.png</file>
-        <file>Resources/Icons/iconZoomOut.png</file>
-
-        <file>Resources/Sprites/mood-annoyed.gif</file>
-        <file>Resources/Sprites/mood-love.gif</file>
-        <file>Resources/Sprites/mood-sad.gif</file>
-        <file>Resources/Sprites/Box.png</file>
-        <file>Resources/Sprites/BG.png</file>
-        <file>Resources/Sprites/Button.png</file>
-        <file>Resources/Sprites/Door_Open.png</file>
-        <file>Resources/Sprites/Door_Closed.png</file>
-        <file>Resources/Sprites/Pinny_D-DOWN.png</file>
-        <file>Resources/Sprites/Pinny_D-LEFT.png</file>
-        <file>Resources/Sprites/Pinny_D-RIGHT.png</file>
-        <file>Resources/Sprites/Pinny_D-UP.png</file>
+    <qresource prefix="/main">
+        <file alias="style">Resources/style.scss</file>
+        <file alias="bgPaws">Resources/Icons/bgPaws.png</file>
+    </qresource>
+    <qresource prefix="/main/markdown">
+        <file alias="css">Resources/markdown.css</file>
+        <file alias="js">Resources/marked.js</file>
+        <file alias="html">Resources/index.html</file>
+        <file alias="md">Resources/md/test.md</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="heart">Resources/Icons/heart.png</file>
+        <file alias="execute">Resources/Icons/iconExec.png</file>
+        <file alias="zoomIn">Resources/Icons/iconZoomIn.png</file>
+        <file alias="zoomOut">Resources/Icons/iconZoomOut.png</file>
+    </qresource>
+    <qresource prefix="/game/main">
+        <file alias="bg">Resources/Sprites/BG.png</file>
+    </qresource>
+    <qresource prefix="/game/obj">
+        <file alias="box">Resources/Sprites/Box.png</file>
+        <file alias="button">Resources/Sprites/Button.png</file>
+        <file alias="door-open">Resources/Sprites/Door_Open.png</file>
+        <file alias="door-closed">Resources/Sprites/Door_Closed.png</file>
+    </qresource>
+    <qresource prefix="/game/entity">
+        <file alias="soul">Resources/Sprites/Soul.png</file>
+    </qresource>
+    <qresource prefix="/player/main">
+        <file alias="down">Resources/Sprites/Pinny_D-DOWN.png</file>
+        <file alias="left">Resources/Sprites/Pinny_D-LEFT.png</file>
+        <file alias="right">Resources/Sprites/Pinny_D-RIGHT.png</file>
+        <file alias="up">Resources/Sprites/Pinny_D-UP.png</file>
+    </qresource>
+    <qresource prefix="/player/moods">
+        <file alias="annoyed">Resources/Sprites/mood-annoyed.gif</file>
+        <file alias="love">Resources/Sprites/mood-love.gif</file>
+        <file alias="sad">Resources/Sprites/mood-sad.gif</file>
     </qresource>
     <qresource prefix="/levels/Debug">
-        <file alias="Level 0.0">Resources/Levels/level-Debug00.nlvldata</file>
-        <file alias="Level 0.1">Resources/Levels/level-Debug01.nlvldata</file>
+        <file alias="Level 0.0">Resources/Levels/level-Debug00.clvldata</file>
+        <file alias="Level 0.1">Resources/Levels/level-Debug01.clvldata</file>
+        <file alias="Level 0.2">Resources/Levels/level-Debug02.clvldata</file>
+        <file alias="Level 0.3">Resources/Levels/level-Debug03.clvldata</file>
     </qresource>
 </RCC>

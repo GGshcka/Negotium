@@ -1,10 +1,13 @@
 #include <Qt>
 #include <QtWidgets>
+#include <QWebEngineView>
 #include "Game.h"
 #include "PyAPI.h"
 #include "SavesFileWorker.h"
 #include "CodeHighlighter.h"
 #include <python3.13/Python.h>
+
+#include "MDISubWindow.h"
 
 Game *gameView;
 
@@ -15,42 +18,47 @@ public:
     explicit MainWindow(QWidget *parent = nullptr) : QMainWindow(parent) {
         setWindowTitle("Negotium");
 
-        QMenuBar *menuBar = this->menuBar();
+        QFile sfile(":/main/style");
+        if(!sfile.open(QIODevice::ReadOnly))
+        {
+            qDebug() << "Cannot open stylesheet file.";
+            return;
+        }
+        QString stylesheet = QString::fromUtf8(sfile.readAll());
+        this->setStyleSheet(stylesheet);
 
-        auto *systemMenuItem = new QMenu("System");
+        qMenuBar = this->menuBar();
 
-        auto *settingsMenuAction = new QAction();
-        settingsMenuAction->setText("Settings");
+        auto *systemMenuItem = new QMenu("System", this);
+
+        auto *settingsMenuAction = new QAction("Settings", this);
         connect(settingsMenuAction, &QAction::triggered, this, [this]() {
             qDebug() << "!!!WIP!!!";
         });
         systemMenuItem->addAction(settingsMenuAction);
 
-        auto *exitMenuAction = new QAction();
-        exitMenuAction->setText("Shutdown");
+        auto *exitMenuAction = new QAction("Shutdown", this);
         connect(exitMenuAction, &QAction::triggered, this, &MainWindow::close);
         systemMenuItem->addAction(exitMenuAction);
 
-        menuBar->addMenu(systemMenuItem);
+        qMenuBar->addMenu(systemMenuItem);
 
-        auto *gameMenuItem = new QMenu("Game");
+        auto *gameMenuItem = new QMenu("Game", this);
 
-        auto *runLevelMenuAction = new QAction();
-        runLevelMenuAction->setText("Run level");
+        auto *runLevelMenuAction = new QAction("Run level", this);
         connect(runLevelMenuAction, &QAction::triggered, this, &MainWindow::runLevelWindow);
         gameMenuItem->addAction(runLevelMenuAction);
 
-        auto *closeGameMenuAction = new QAction();
-        closeGameMenuAction->setText("Close all");
+        auto *closeGameMenuAction = new QAction("Close all", this);
         connect(closeGameMenuAction, &QAction::triggered, this, [=, this]() { mdiArea->closeAllSubWindows(); });
         gameMenuItem->addAction(closeGameMenuAction);
 
-        menuBar->addMenu(gameMenuItem);
+        qMenuBar->addMenu(gameMenuItem);
 
         mdiArea = new QMdiArea(this);
         mdiArea->setBackground(QBrush(qRgb(87, 70, 123)));
         mdiArea->setTabsClosable(false);
-        mdiArea->setBackground(QBrush(QPixmap(":/Resources/Icons/bgPaws.png")));
+        mdiArea->setBackground(QBrush(QPixmap(":/main/bgPaws")));
         setCentralWidget(mdiArea);
 
         QPixmap pixmap(32, 32);
@@ -82,7 +90,11 @@ public:
 
         mdiArea->addSubWindow(viewMdiWindow);
         viewMdiWindow->close();
-        //! VIEW MDI END
+        //! END OF INIT VIEW MDI
+        //! INIT GUIDE MDI
+        mdiArea->addSubWindow(guideMdiWindow);
+        guideMdiWindow->close();
+        //! END OF INIT GUID MDI
 
         runLevelMdiWindow = new QMdiSubWindow();
         runLevelMdiWindow->setWindowTitle(QString("Select level"));
@@ -91,30 +103,24 @@ public:
 
         mdiArea->addSubWindow(runLevelMdiWindow);
         runLevelMdiWindow->close();
-
-        QFile sfile(":/Resources/style.scss");
-        if(!sfile.open(QIODevice::ReadOnly))
-        {
-            qDebug() << "Cannot open stylesheet file.";
-            return;
-        }
-        QString stylesheet = QString::fromUtf8(sfile.readAll());
-        this->setStyleSheet(stylesheet);
     }
 
 protected:
     void keyPressEvent(QKeyEvent *event) override {
         switch (event->key()) {
-            case Qt::Key_F1:
+            case Qt::Key_Plus:
                 view->scale(1.2, 1.2);
                 view->update();
                 break;
-            case Qt::Key_F2:
+            case Qt::Key_Minus:
                 view->scale(0.8, 0.8);
                 view->update();
                 break;
-            case Qt::Key_F3:
-                runLevelWindow();
+            case Qt::Key_F1:
+                menuBar()->setActiveAction(menuBar()->actions()[0]);
+                break;
+            case Qt::Key_F2:
+                menuBar()->setActiveAction(menuBar()->actions()[1]);
                 break;
             case Qt::Key_F5:
                 if (gameView != nullptr) gameView->Run();
@@ -131,7 +137,7 @@ protected:
         viewToolBar->addWidget(spacer);
 
         for (int i = 1; i <= iconCount; ++i) {
-            auto *heartsIcons = new QAction(QPixmap(":/Resources/Icons/heart.png"), nullptr);
+            auto *heartsIcons = new QAction(QPixmap(":/icons/heart"), nullptr);
             heartsIcons->setObjectName("Hearts");
             viewToolBar->addAction(heartsIcons);
         }
@@ -143,7 +149,7 @@ protected:
         codeEditorMdiWindow->setWidget(codeEditorCentralWidget);
 
         auto *execButton = new QAction();
-        execButton->setIcon(QIcon(":/Resources/Icons/iconExec.png"));
+        execButton->setIcon(QIcon(":/icons/execute"));
         execButton->setToolTip("Execute your code. You can execute, on press F5.");
 
         connect(execButton, &QAction::triggered, this, &MainWindow::execGame);
@@ -180,7 +186,6 @@ protected:
         codeEditorLayout->addWidget(codeEditorToolBar, 0, 0);
         codeEditorLayout->addWidget(edit, 1, 0);
 
-
         auto *runOutputCentralWidget = new QWidget(runOutputMdiWindow);
         runOutputMdiWindow->setWidget(runOutputCentralWidget);
 
@@ -205,11 +210,11 @@ protected:
         view->scale(0.3, 0.3);
 
         zoomInButton = new QAction();
-        zoomInButton->setIcon(QIcon(":/Resources/Icons/iconZoomIn.png"));
+        zoomInButton->setIcon(QIcon(":/icons/zoomIn"));
         zoomInButton->setToolTip("Zoom In");
 
         zoomOutButton = new QAction();
-        zoomOutButton->setIcon(QIcon(":/Resources/Icons/iconZoomOut.png"));
+        zoomOutButton->setIcon(QIcon(":/icons/zoomOut"));
         zoomOutButton->setToolTip("Zoom Out");
 
         connect(zoomInButton, &QAction::triggered, this, &MainWindow::zoomIn);
@@ -230,9 +235,32 @@ protected:
         scrollVBar->setValue(0);
         scrollHBar->setValue(0);
 
+        //! GUIDE MDI INIT
+        auto guideCentralWidget = new QWidget(guideMdiWindow);
+        guideMdiWindow->setWidget(guideCentralWidget);
+
+        guideLayout = new QGridLayout(guideCentralWidget);
+
+        guideText = new QTextEdit();
+        guideText->setReadOnly(true);
+
+        //guideText->toMarkdown(QTextDocument::MarkdownDialectGitHub);
+        guideText->setMarkdown("# Test H1\n## Test H2\n### Test H3\n* test");
+
+        guideWebEngineView = new QWebEngineView();
+        guideWebEngineView->load(QUrl(":/main/markdown/html"));
+
+        QString markdownText = "# TEST H1"; // Load from file or resource
+        QString js = QString("updateMarkdown(%1);").arg(QJsonDocument::fromVariant(markdownText).toJson(QJsonDocument::Compact));
+
+        guideWebEngineView->page()->runJavaScript(js);
+
+        guideLayout->addWidget(guideWebEngineView, 0, 0);
+
         viewMdiWindow->show();
         runOutputMdiWindow->show();
         codeEditorMdiWindow->show();
+        guideMdiWindow->show();
     }
 
 private Q_SLOTS:
@@ -297,7 +325,7 @@ private:
     QMdiSubWindow *codeEditorMdiWindow = nullptr;
     QMdiSubWindow *runOutputMdiWindow = nullptr;
     QMdiSubWindow *viewMdiWindow = nullptr;
-    QMdiSubWindow *guideMdiWindow = nullptr;
+    MDISubWindow *guideMdiWindow = new MDISubWindow(nullptr, "Guide", QRect(1000, 40, 450, 800));
     QMdiSubWindow *runLevelMdiWindow = nullptr;
     QMdiArea *mdiArea;
     QGridLayout *codeEditorLayout;
@@ -312,6 +340,8 @@ private:
     QToolBar *codeEditorToolBar;
     QAction *zoomInButton, *zoomOutButton;
     QStandardItemModel *model = new QStandardItemModel();
+    QMenuBar *qMenuBar;
+    QWebEngineView *guideWebEngineView;
 };
 
 int main(int argc, char *argv[]) {

@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Xml Core Concurrent)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Xml Core Concurrent WebEngineWidgets)
 find_package(Python3 COMPONENTS Development REQUIRED)
 qt_standard_project_setup()
 
@@ -27,6 +27,7 @@ target_link_libraries(${PROJECT_NAME}
         PRIVATE Qt6::Xml
         PRIVATE Qt6::Core
         PRIVATE Qt6::Concurrent
+        PRIVATE Qt6::WebEngineWidgets
         PRIVATE ${Python3_LIBRARIES}
 )
 

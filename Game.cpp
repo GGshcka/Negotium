@@ -8,13 +8,17 @@
 #include <python3.13/Python.h>
 #include <QtGlobal>
 
+qreal customEasingFunction(qreal progress) {
+    return sin(progress * M_PI / 2); // Плавное движение вперед //!Психованное движение tan(progress*M_PI*progress*M_PI)
+}
+
 Game::Game(QTextEdit *edit, QTextEdit *debugText, QString levelPath) {
-    setBackgroundBrush(QImage(":/Resources/Sprites/BG.png"));
+    setBackgroundBrush(QImage(":/game/main/bg"));
     textEdit = edit;
     debugTextView = debugText;
     lvlPath = levelPath;
     scene = new QGraphicsScene(this);
-    scene->setBackgroundBrush(QImage(":/Resources/Sprites/BG.png"));
+    scene->setBackgroundBrush(QImage(":/game/main/bg"));
     setScene(scene);
 
     if(loadLevel()) qInfo() << "Successful loaded...";
@@ -26,31 +30,41 @@ Game::Game(QTextEdit *edit, QTextEdit *debugText, QString levelPath) {
     scene->addItem(character);
 
     setFocusPolicy(Qt::StrongFocus);
+
+    easingCurve.setCustomType(customEasingFunction);
 }
 
 bool Game::CanMove(int direction) {
     canMove = true;
     switch (direction) {
         case 0: // UP
-            if (character->pos().y() - gridSize < gridSize) canMove = false;
+            if (
+                    character->pos().y() - gridSize < gridSize ||
+                    pitCords.contains((QPoint(character->pos().x(), character->pos().y() - gridSize) / gridSize) - QPoint(1, 1))
+                ) canMove = false;
             break;
         case 1: // DOWN
-            if (character->pos().y() + gridSize >= scene->height() - gridSize) canMove = false;
+            if (
+                    character->pos().y() + gridSize >= scene->height() - gridSize ||
+                    pitCords.contains((QPoint(character->pos().x(), character->pos().y() + gridSize) / gridSize) - QPoint(1, 1))
+                ) canMove = false;
             break;
         case 2: // LEFT
-            if (character->pos().x() - gridSize < gridSize) canMove = false;
+            if (
+                    character->pos().x() - gridSize < gridSize ||
+                    pitCords.contains((QPoint(character->pos().x() - gridSize, character->pos().y()) - QPoint(1, 1)))
+                ) canMove = false;
             break;
         case 3: // RIGHT
-            if (character->pos().x() + gridSize >= scene->width() - gridSize) canMove = false;
+            if (
+                    character->pos().x() + gridSize >= scene->width() - gridSize ||
+                    pitCords.contains((QPoint(character->pos().x() + gridSize, character->pos().y()) - QPoint(1, 1)))
+                ) canMove = false;
             break;
         default:
             break;
     }
     return canMove;
-}
-
-qreal customEasingFunction(qreal progress) {
-    return sin(progress * M_PI / 2); // Плавное движение вперед //!Психованное движение tan(progress*M_PI*progress*M_PI)
 }
 
 void Game::Move(int direction) {
@@ -95,6 +109,15 @@ void Game::Move(int direction) {
         }
     }
 
+    for (const auto &soul : souls) {
+        moveSoul(soul, multiplier);
+        if (soul->pos() + QPoint(1, 1) == character->pos()) {
+            PlayerHit(playerHealth);
+            soul->showMood(speedMultiplier, "love");
+            endPos = startPos;
+        }
+    }
+
     for (const auto &box: boxes) {
         if (endPos == box->pos() + QPoint(1, 1) && !box->isFalled()) {
             multiplier = 2;
@@ -114,8 +137,6 @@ void Game::Move(int direction) {
     animation->setDuration(700 * multiplier / speedMultiplier); // Время анимации
     animation->setStartValue(character->pos());
     animation->setEndValue(endPos);
-    QEasingCurve easingCurve;
-    easingCurve.setCustomType(customEasingFunction);
     animation->setEasingCurve(easingCurve);
     connect(animation, &QPropertyAnimation::finished, this, [=, this]() {
         character->setPos(endPos);
@@ -194,12 +215,36 @@ bool Game::moveBox(GameBox *targetBox, int direction) {
     animation->setDuration(700 * 2 / speedMultiplier); // Время анимации
     animation->setStartValue(startPos);
     animation->setEndValue(boxEndPos);
-    QEasingCurve easingCurve;
-    easingCurve.setCustomType(customEasingFunction);
     animation->setEasingCurve(easingCurve);
     animation->start();
 
     return true;
+}
+
+void Game::moveSoul(SoulEntity *soul, int multiplier) {
+    QPointF startPos = soul->pos();
+    QPointF soulEndPos = startPos;
+
+    int wPos = soul->getWanderingPosition();
+    if (wPos < 0 || wPos > 0) {
+        soul->reversMoveDirection();
+    }
+
+    if (soul->isVertical()) {
+        if (!soul->isBackward()) soulEndPos.ry() += gridSize;
+        else soulEndPos.ry() -= gridSize;
+    } else {
+        if (!soul->isBackward()) soulEndPos.rx() += gridSize;
+        else soulEndPos.rx() -= gridSize;
+    }
+    soul->increaseWanderingPosition();
+
+    auto *animation = new QPropertyAnimation(soul, "pos", this);
+    animation->setDuration(700 * multiplier / speedMultiplier);
+    animation->setStartValue(startPos);
+    animation->setEndValue(soulEndPos);
+    animation->setEasingCurve(easingCurve);
+    animation->start();
 }
 
 void Game::Run() { //! ВАЖНО ! двойной запуск ломает игру!!!!
@@ -220,6 +265,9 @@ void Game::Run() { //! ВАЖНО ! двойной запуск ломает и�
             box->setPos(box->startPos());
             if (box->isFalled()) box->setFalled(false);
         }
+        for (const auto &soul: souls) {
+            soul->reset();
+        }
     }
 
     PyObject *globals = PyDict_New();
@@ -230,7 +278,7 @@ void Game::Run() { //! ВАЖНО ! двойной запуск ломает и�
     auto *fw = new SavesFileWorker("code.isf");
     fw->setSaveFileText(text);
 
-    QString readyPythonCode = QString("from game import *\n") + text;
+    QString readyPythonCode = QString("from negotiumGameIntegrationModule import *\n") + text;
 
     PyObject *result = PyRun_String(readyPythonCode.toUtf8().constData(), Py_file_input, globals, locals);
 
@@ -247,7 +295,9 @@ void Game::Run() { //! ВАЖНО ! двойной запуск ломает и�
     Py_DECREF(globals);
     Py_DECREF(locals);
 
-    PyAPI::Finalize();
+    if (Py_IsInitialized()) {
+        PyAPI::Finalize();
+    }
 }
 
 void Game::createGrid() const {
@@ -278,11 +328,11 @@ bool Game::loadLevel() {
                 gridRowCount = attributes.value("rows").toInt();
             } else if (tagName == "exit") {
                 if (attributes.value("closed").toInt() == 0) {
-                    exit = new GameExit(QPixmap(":/Resources/Sprites/Door_Open.png").scaled(gridSize, gridSize), nullptr);
+                    exit = new GameExit(QPixmap(":/game/obj/door-open").scaled(gridSize, gridSize), nullptr);
                     exit->setStartClosed(false);
                 }
                 else  {
-                    exit = new GameExit(QPixmap(":/Resources/Sprites/Door_Closed.png").scaled(gridSize, gridSize), nullptr);
+                    exit = new GameExit(QPixmap(":/game/obj/door-closed").scaled(gridSize, gridSize), nullptr);
                     exit->setStartClosed(true);
                 }
                 exit->setStartPos(attributes.value("x").toInt() * gridSize + gridSize, attributes.value("y").toInt() * gridSize + gridSize);
@@ -297,17 +347,22 @@ bool Game::loadLevel() {
             } else if (tagName == "pit") {
                 pitCords.append(QPoint(attributes.value("x").toInt(), attributes.value("y").toInt()));
             } else if (tagName == "box") {
-                auto *newBox = new GameBox(QPixmap(":/Resources/Sprites/Box.png").scaled(gridSize, gridSize),nullptr);
+                auto *newBox = new GameBox(QPixmap(":/game/obj/box").scaled(gridSize, gridSize),nullptr);
                 newBox->setStartPos(attributes.value("x").toInt() * gridSize + gridSize, attributes.value("y").toInt() * gridSize + gridSize);
                 boxes.append(newBox);
             } else if (tagName == "button") {
-                auto *newButton = new GameButton(QPixmap(":/Resources/Sprites/Button.png").scaled(gridSize, gridSize), nullptr);
+                auto *newButton = new GameButton(QPixmap(":/game/obj/button").scaled(gridSize, gridSize), nullptr);
                 newButton->setStartPos(attributes.value("x").toInt() * gridSize + gridSize, attributes.value("y").toInt() * gridSize + gridSize);
                 newButton->setPressed(false);
                 connect(newButton, &GameButton::buttonStateChanged, this, [this]() {
                     Q_EMIT exit->signalChangeState();
                 });
                 buttons.append(newButton);
+            } else if (tagName == "soul") {
+                auto *newSoul = new SoulEntity(QPixmap(":/game/entity/soul").scaled(gridSize, gridSize),
+                                               nullptr, attributes.value("vertical").toInt(), attributes.value("backward").toInt());
+                newSoul->setStartPos(attributes.value("x").toInt() * gridSize + gridSize, attributes.value("y").toInt() * gridSize + gridSize);
+                souls.append(newSoul);
             }
         }
     }
@@ -319,14 +374,24 @@ bool Game::loadLevel() {
 
     createGrid();
 
-    for (int i = 0; i < pitCords.length(); i++) {
-        scene->addRect(gridSize * pitCords[i].x() + gridSize, gridSize * pitCords[i].y() + gridSize, gridSize, gridSize, QPen(qRgb(0, 0, 0)), QBrush(qRgb(0, 0, 0)));
+    for (const auto &pit: pitCords) {
+        scene->addRect(
+                gridSize * pit.x() + gridSize,
+                gridSize * pit.y() + gridSize,
+                gridSize,
+                gridSize,
+                QPen(qRgb(0, 0, 0)),
+                QBrush(qRgb(0, 0, 0))
+                );
     }
-    for (int i = 0; i < buttons.length(); i++) {
-        scene->addItem(buttons[i]);
+    for (const auto &button: buttons) {
+        scene->addItem(button);
     }
-    for (int i = 0; i < boxes.length(); i++) {
-        scene->addItem(boxes[i]);
+    for (const auto &box: boxes) {
+        scene->addItem(box);
+    }
+    for (const auto &soul: souls) {
+        scene->addItem(soul);
     }
     return true;
 }

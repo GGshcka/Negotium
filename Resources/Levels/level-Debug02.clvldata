@@ -1,25 +1,22 @@
 <level
         group='Debug'
-        columns='5'
-        rows='5'
+        columns='8'
+        rows='1'
 >
-    <exit x='4' y='0' closed='1'/>
+    <exit x='7' y='0' closed='0'/>
     <objects>
         <pits>
-            <pit x='0' y='2'/>
-            <pit x='1' y='2'/>
-            <pit x='3' y='2'/>
-            <pit x='4' y='2'/>
         </pits>
         <boxes>
-            <box x='0' y='1'/>
-            <box x='2' y='2'/>
         </boxes>
         <buttons>
-            <button x='2' y='4'/>
         </buttons>
+        <souls>
+            <soul x='2' y='0' vertical='1' backward="0"/>
+            <soul x='5' y='0' vertical='1' backward="1"/>
+        </souls>
     </objects>
-    <guide>
+    <lvlguide>
         <title>
             Test title!
         </title>
@@ -31,5 +28,5 @@
             Cat #4.
             Just a basic orange cat.
         </maintext>
-    </guide>
+    </lvlguide>
 </level>

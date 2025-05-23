@@ -26,5 +26,20 @@
         </boxes>
         <buttons>
         </buttons>
+        <souls>
+        </souls>
     </objects>
+    <lvlguide>
+        <title>
+            Test title!
+        </title>
+        <maintext>
+            This a test text!
+            Cat #1.
+            Cat #2.
+            Cat #3.
+            Cat #4.
+            Just a basic orange cat.
+        </maintext>
+    </lvlguide>
 </level>
