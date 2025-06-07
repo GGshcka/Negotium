@@ -6,6 +6,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+#[[set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)]]
+
 find_package(Qt6 REQUIRED COMPONENTS Widgets Xml Core Concurrent WebEngineWidgets)
 find_package(Python3 COMPONENTS Development REQUIRED)
 qt_standard_project_setup()
@@ -29,6 +33,7 @@ target_link_libraries(${PROJECT_NAME}
         PRIVATE Qt6::Concurrent
         PRIVATE Qt6::WebEngineWidgets
         PRIVATE ${Python3_LIBRARIES}
+        PRIVATE cmark
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE QT_NO_KEYWORDS)

@@ -10,7 +10,9 @@ SavesFileWorker::SavesFileWorker(const QString& fileName) {
 }
 
 QString SavesFileWorker::getSaveFileText() {
-    auto lvlName = QCoreApplication::instance()->property("levelName").toString().slice(6).split('.');
+    QString str = QCoreApplication::instance()->property("levelName").toString();
+    qDebug() << str;
+    auto lvlName = str.chopped(9).split('|');
     qDebug() << lvlName;
     if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug("FILE: Error: Can't open file.");
@@ -53,8 +55,14 @@ QString SavesFileWorker::getSaveFileText() {
     return result;
 }
 
-QString SavesFileWorker::setSaveFileText(const QString &text) {
-    auto lvlName = QCoreApplication::instance()->property("levelName").toString().mid(6).split('.');
+QString SavesFileWorker::setSaveFileText(QString &text) {
+    text.replace(QRegularExpression("[ \n\t]+$"), "");
+
+    QString str = QCoreApplication::instance()->property("levelName").toString();
+    qDebug() << str;
+    auto lvlName = str.chopped(9).split('|');
+    qDebug() << lvlName;
+
     if (lvlName.size() < 2) {
         return "FILE: Error: Invalid level name format!";
     }

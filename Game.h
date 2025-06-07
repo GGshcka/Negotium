@@ -14,7 +14,7 @@ public:
     bool CanMove(int direction);
     void Run();
     void PlayerHit(unsigned int dmg);
-    unsigned int PlayerHPGet() const;
+    unsigned int getPlayerHP() const;
     QGraphicsScene *scene;
     QTextEdit *textEdit, *debugTextView;
     double speedMultiplier = 1.0;

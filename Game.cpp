@@ -8,6 +8,8 @@
 #include <python3.13/Python.h>
 #include <QtGlobal>
 
+#include "AppWideVariables.h"
+
 qreal customEasingFunction(qreal progress) {
     return sin(progress * M_PI / 2); // Плавное движение вперед //!Психованное движение tan(progress*M_PI*progress*M_PI)
 }
@@ -323,6 +325,7 @@ bool Game::loadLevel() {
             auto tagName = xml.qualifiedName();
 
             QXmlStreamAttributes attributes = xml.attributes();
+
             if (tagName == "level") {
                 gridColumnCount = attributes.value("columns").toInt();
                 gridRowCount = attributes.value("rows").toInt();
@@ -363,6 +366,8 @@ bool Game::loadLevel() {
                                                nullptr, attributes.value("vertical").toInt(), attributes.value("backward").toInt());
                 newSoul->setStartPos(attributes.value("x").toInt() * gridSize + gridSize, attributes.value("y").toInt() * gridSize + gridSize);
                 souls.append(newSoul);
+            } else if (tagName == "lvlguide") {
+                AppWideVariables::instance().markdownText = xml.readElementText();
             }
         }
     }
@@ -393,10 +398,11 @@ bool Game::loadLevel() {
     for (const auto &soul: souls) {
         scene->addItem(soul);
     }
+    file->close();
     return true;
 }
 
-unsigned int Game::PlayerHPGet() const {
+unsigned int Game::getPlayerHP() const {
     return playerHealth;
 }
 

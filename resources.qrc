@@ -3,12 +3,6 @@
         <file alias="style">Resources/style.scss</file>
         <file alias="bgPaws">Resources/Icons/bgPaws.png</file>
     </qresource>
-    <qresource prefix="/main/markdown">
-        <file alias="css">Resources/markdown.css</file>
-        <file alias="js">Resources/marked.js</file>
-        <file alias="html">Resources/index.html</file>
-        <file alias="md">Resources/md/test.md</file>
-    </qresource>
     <qresource prefix="/icons">
         <file alias="heart">Resources/Icons/heart.png</file>
         <file alias="execute">Resources/Icons/iconExec.png</file>
