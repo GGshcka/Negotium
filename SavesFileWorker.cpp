@@ -6,6 +6,10 @@
 
 SavesFileWorker::SavesFileWorker(const QString& fileName) {
     file = new QFile(fileName);
+    if (file)
+    {
+        qDebug() << "SavesFileWorker: file " << fileName << " created";
+    }
     qDebug() << "FILE: Name:" << fileName;
 }
 
@@ -51,13 +55,11 @@ QString SavesFileWorker::getSaveFileText() {
         }
     }
 
-
-
     file->close();
     return result;
 }
 
-QString SavesFileWorker::setSaveFileText(QString &text) {
+void SavesFileWorker::setSaveFileText(QString &text) {
     text.replace(QRegularExpression("[ \n\t]+$"), "");
 
     QString str = QCoreApplication::instance()->property("levelName").toString();
@@ -66,16 +68,12 @@ QString SavesFileWorker::setSaveFileText(QString &text) {
     qDebug() << lvlName;
 
     if (lvlName.size() < 2) {
-        return "FILE: Error: Invalid level name format!";
+        qDebug() << "FILE: Error: Invalid level name format!";
+        return;
     }
 
     QString category = lvlName[0];  // Имя категории
     QString level = lvlName[1];     // Имя уровня
-
-    if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return "FILE: Error: Could not open script file and save!";
-    }
-    QTextStream in(file);
 
     QStringList lines;
     bool insideCategory = false;
@@ -87,54 +85,58 @@ QString SavesFileWorker::setSaveFileText(QString &text) {
     int categoryStartIndex = -1;
     int categoryEndIndex = -1;
 
-    while (!in.atEnd()) {
-        QString line = in.readLine();
+    if (file->open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(file);
 
-        // Найдено начало категории
-        if (line.trimmed() == "#CTG/START: " + category) {
-            insideCategory = true;
-            categoryExists = true;
-            categoryStartIndex = lines.size();
-        }
+        while (!in.atEnd()) {
+            QString line = in.readLine();
 
-        // Найден конец категории
-        if (insideCategory && line.trimmed() == "#CTG/END! " + category) {
-            insideCategory = false;
-            categoryEndIndex = lines.size();
-        }
+            // Найдено начало категории
+            if (line.trimmed() == "#CTG/START: " + category) {
+                insideCategory = true;
+                categoryExists = true;
+                categoryStartIndex = lines.size();
+            }
 
-        // Найдено начало уровня
-        if (insideCategory && line.trimmed().startsWith(">#LVL/START: ")) {
-            QString existingLevel = line.split(": ")[1].trimmed();
+            // Найден конец категории
+            if (insideCategory && line.trimmed() == "#CTG/END! " + category) {
+                insideCategory = false;
+                categoryEndIndex = lines.size();
+            }
 
-            // Если нашли нужный уровень, заменяем его содержимое
-            if (existingLevel == level) {
-                insideLevel = true;
-                levelExists = true;
-                lines.append(line);
-                lines.append(text);  // Заменяем содержимое
+            // Найдено начало уровня
+            if (insideCategory && line.trimmed().startsWith(">#LVL/START: ")) {
+                QString existingLevel = line.split(": ")[1].trimmed();
+
+                // Если нашли нужный уровень, заменяем его содержимое
+                if (existingLevel == level) {
+                    insideLevel = true;
+                    levelExists = true;
+                    lines.append(line);
+                    lines.append(text);  // Заменяем содержимое
+                    continue;
+                }
+
+                // Если уровень больше по номеру, запомним индекс для вставки перед ним
+                if (existingLevel.toInt() > level.toInt() && insertIndex == -1) {
+                    insertIndex = lines.size();
+                }
+            }
+
+            // Найден конец уровня
+            if (insideLevel && line.trimmed().startsWith(">#LVL/END! ")) {
+                insideLevel = false;
+            }
+
+            // Пропускаем строки внутри старого уровня
+            if (insideLevel) {
                 continue;
             }
 
-            // Если уровень больше по номеру, запомним индекс для вставки перед ним
-            if (existingLevel.toInt() > level.toInt() && insertIndex == -1) {
-                insertIndex = lines.size();
-            }
+            lines.append(line);
         }
-
-        // Найден конец уровня
-        if (insideLevel && line.trimmed().startsWith(">#LVL/END! ")) {
-            insideLevel = false;
-        }
-
-        // Пропускаем строки внутри старого уровня
-        if (insideLevel) {
-            continue;
-        }
-
-        lines.append(line);
+        file->close();
     }
-    file->close();
 
     // Если категории нет — создаём её в правильном месте
     if (!categoryExists) {
@@ -167,16 +169,13 @@ QString SavesFileWorker::setSaveFileText(QString &text) {
     }
 
     // Записываем изменения в файл
-    if (!file->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        return "FILE: Error: Could not open script file and save!";
+    if (file->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        QTextStream out(file);
+        for (const QString &l : lines) {
+            out << l << "\n";
+        }
+        file->close();
     }
-    QTextStream out(file);
-    for (const QString &l : lines) {
-        out << l << "\n";
-    }
-    file->close();
-
-    return nullptr;
 }
 
 

@@ -16,7 +16,7 @@ public:
     SavesFileWorker(const QString& fileName);
 
     QString getSaveFileText();
-    QString setSaveFileText(QString &text);
+    void setSaveFileText(QString &text);
 
 private:
     QFile *file;
