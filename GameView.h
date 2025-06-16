@@ -14,7 +14,6 @@ public:
 
     void setGame(Game* game);
     void updateGame();
-    void execute();
 
 private Q_SLOTS:
     void zoomIn() const {

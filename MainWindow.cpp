@@ -106,7 +106,6 @@ void MainWindow::openLevelMDIWindows() {
     );
     inst->viewMdiWindow->setGame(AppWideVariables::instance().game);
 
-    inst->viewMdiWindow->execute();
     inst->viewMdiWindow->update();
     inst->viewMdiWindow->updateGame();
 

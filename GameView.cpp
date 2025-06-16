@@ -41,6 +41,7 @@ GameView::GameView() : MDISubWindow(nullptr, "Game", QRect(20, 40, 1450, 800))
     view->setHorizontalScrollBar(scrollHBar);
 
     spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 }
 
 void GameView::setGame(Game *game)
@@ -54,8 +55,6 @@ void GameView::setGame(Game *game)
 
     scrollVBar->setValue(0);
     scrollHBar->setValue(0);
-
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 }
 
 void GameView::updateGame()
@@ -66,21 +65,13 @@ void GameView::updateGame()
     this->update();
 }
 
-void GameView::execute()
-{
-    view->setScene(game->scene);
-
-    scrollVBar->setValue(0);
-    scrollHBar->setValue(0);
-}
-
-
 void GameView::updateToolbarIcons()
 {
     toolBar->clear();
     hearts.clear();
     toolBar->addAction(zoomInButton);
     toolBar->addAction(zoomOutButton);
+    spacer->setVisible(true);
     toolBar->addWidget(spacer);
 
     for (int i = 1; i <= game->getPlayerHP(); ++i) {
