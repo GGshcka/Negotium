@@ -27,11 +27,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto *systemMenuItem = new QMenu("System", this);
 
-    auto *settingsMenuAction = new QAction("Settings", this);
+    /*auto *settingsMenuAction = new QAction("Settings", this);
     connect(settingsMenuAction, &QAction::triggered, this, []() {
         qDebug() << "!!!WIP!!!";
     });
-    systemMenuItem->addAction(settingsMenuAction);
+    systemMenuItem->addAction(settingsMenuAction);*/
 
     auto *exitMenuAction = new QAction("Shutdown", this);
     connect(exitMenuAction, &QAction::triggered, this, &MainWindow::close);

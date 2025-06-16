@@ -51,6 +51,8 @@ QString SavesFileWorker::getSaveFileText() {
         }
     }
 
+
+
     file->close();
     return result;
 }
